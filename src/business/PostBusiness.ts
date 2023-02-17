@@ -56,6 +56,4 @@ export class PostBusiness {
     return (output)
         }
 
-    public getPostId = async ()
-
 }

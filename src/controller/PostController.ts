@@ -4,10 +4,11 @@ import { PostBusiness } from "../business/PostBusiness"
 export class PostController {
     public getPosts = async (req: Request, res: Response) => {
         try {
-            const q = req.query.q as string | undefined
-    
-            const postBusiness = new PostBusiness()
-            const output =  await postBusiness.getPost(q)
+            const input = {
+                q: req.query.q
+            }
+            
+            const output =  await this.postBusiness.getPost(input)
     
             res.status(200).send(output)
         } catch (error) {

@@ -9,5 +9,6 @@ export interface UserDB {
 export interface PostDB {
     id: string,
     creator_id: string,
+    content: string,
     created_at: string
 }

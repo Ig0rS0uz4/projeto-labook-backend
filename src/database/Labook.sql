@@ -26,9 +26,9 @@ VALUES
 	("u002", "vanessa", "vanessa@email.com", "vanessa123", "bardo"),
 	("u003", "hugo", "hugo@email.com", "hugo00", "tank");
 
-INSERT INTO posts (id, creator_id)
+INSERT INTO posts (id, creator_id, content)
 VALUES
-	("p001", "u001"),
-	("p002", "u002");
+	("p001", "u001", "lalala"),
+	("p002", "u002", "lalala");
 
 DROP TABLE posts;

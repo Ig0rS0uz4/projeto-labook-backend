@@ -52,7 +52,7 @@ export class UserBusiness {
             email,
             password,
             new Date().toISOString()
-        ) // yyyy-mm-ddThh:mm:sssZ
+        )
 
         const newUserDB: UserDB = {
             id: newUser.getId(),

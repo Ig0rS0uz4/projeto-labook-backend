@@ -1,15 +1,25 @@
 import { PostDatabase } from "../database/PostDatabase"
+import { PostDTO } from "../dtos/PostDTO"
 import { Post } from "../models/Post"
 import { PostDB } from "../types"
 
 export class PostBusiness {
-    public getPost = async (q: string | undefined) => {
-        const postDatabase = new PostDatabase()
-        const postsDB = await postDatabase.findPost(q)
+    
+    constructor(
+        private postDTO: PostDTO,
+        private postDatabase: PostDatabase
+    ){}
+    
+    public getPost = async (input: any) => {
+
+        const { q } = input
+
+        const postsDB = await this.postDatabase.findPost(q)
 
         const posts: Post[] = postsDB.map((postDB) => new Post(
             postDB.id,
             postDB.creator_id,
+            postDB.content,
             postDB.created_at
         ))
 
@@ -27,8 +37,7 @@ export class PostBusiness {
             throw new Error("'creator_id' deve ser string")
         }
 
-        const postDatabase = new PostDatabase()
-        const postDBExists = await postDatabase.findPostById(id)
+        const postDBExists = await this.postDatabase.findPostById(id)
     
         if(postDBExists) {
             throw new Error("'id' já existe")
@@ -37,16 +46,18 @@ export class PostBusiness {
         const newPost = new Post(
             id,
             creator_id,
+            content,
             new Date().toISOString()
-        ) // yyyy-mm-ddThh:mm:sssZ
+        )
     
         const newPostDB: PostDB = {
             id: newPost.getId(),
             creator_id: newPost.getCreatorId(),
+            content: newPost.getContent(),
             created_at: newPost.getCreatedAt()
         }
     
-            await postDatabase.insertPost(newPostDB)
+            await this.postDatabase.insertPost(newPostDB)
     
     const output = {
         message: "post realizado com sucesso",

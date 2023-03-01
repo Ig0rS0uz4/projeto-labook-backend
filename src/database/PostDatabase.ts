@@ -36,4 +36,18 @@ export class PostDatabase extends BaseDatabase {
             .connection(PostDatabase.TABLE_POSTS)
             .insert(newPostDB)
     }
+
+    public async updatePost(postDB: PostDB) {
+        await BaseDatabase
+            .connection(PostDatabase.TABLE_POSTS)
+            .update(postDB)
+            .where({ id: postDB.id })
+    }
+
+    public async deletePostById(id: string) {
+        await BaseDatabase
+            .connection(PostDatabase.TABLE_POSTS)
+            .delete()
+            .where({ id })
+    }
 }

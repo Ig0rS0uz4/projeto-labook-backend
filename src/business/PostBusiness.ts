@@ -1,15 +1,16 @@
 import { PostDatabase } from "../database/PostDatabase"
 import { PostDTO } from "../dtos/PostDTO"
+import { NotFoundError } from "../errors/NotFoundError"
 import { Post } from "../models/Post"
 import { PostDB } from "../types"
 
 export class PostBusiness {
-    
+
     constructor(
         private postDTO: PostDTO,
         private postDatabase: PostDatabase
-    ){}
-    
+    ) { }
+
     public getPost = async (input: any) => {
 
         const { q } = input
@@ -27,7 +28,7 @@ export class PostBusiness {
     }
 
     public createPost = async (input: any) => {
-        const { id, creator_id } = input
+        const { id, creator_id, content } = input
 
         if (typeof id !== "string") {
             throw new Error("'id' deve ser string")
@@ -38,33 +39,89 @@ export class PostBusiness {
         }
 
         const postDBExists = await this.postDatabase.findPostById(id)
-    
-        if(postDBExists) {
+
+        if (postDBExists) {
             throw new Error("'id' já existe")
         }
-    
+
         const newPost = new Post(
             id,
             creator_id,
             content,
             new Date().toISOString()
         )
-    
+
         const newPostDB: PostDB = {
             id: newPost.getId(),
             creator_id: newPost.getCreatorId(),
             content: newPost.getContent(),
             created_at: newPost.getCreatedAt()
         }
-    
-            await this.postDatabase.insertPost(newPostDB)
-    
-    const output = {
-        message: "post realizado com sucesso",
-        post: newPost
+
+        await this.postDatabase.insertPost(newPostDB)
+
+        const output = this.postDTO.createPostOutput(newPost)
+
+        return (output)
     }
-    
-    return (output)
+
+    public editPost = async (input:any)=>{
+        const {
+            idToEdit,
+            newId,
+            newCreatorId,
+            newContent,
+            newCreatedAt
+        }= input
+
+        const postToEditDB = await this.postDatabase.findPostById(idToEdit)
+
+        if(!postToEditDB){
+            throw new NotFoundError("id para editar não existe")
         }
+
+        const post = new Post(
+            postToEditDB.id,
+            postToEditDB.creator_id,
+            postToEditDB.content,
+            postToEditDB.created_at
+        )
+
+        newId && post.setId(newId)
+        newCreatorId && post.setcreatorId(newCreatorId)
+        newContent && post.setContent(newContent)
+        newCreatedAt && post.setCreatedAt(newCreatedAt)
+
+        const updatedPostDB: PostDB = {
+            id: post.getId(),
+            creator_id: post.getCreatorId(),
+            content: post.getContent(),
+            created_at: post.getCreatedAt()
+        }
+
+        await this.postDatabase.updatePost(updatedPostDB)
+
+        const output = this.postDTO.editPostOutput(post)
+
+        return output
+    }
+
+    public deletePost = async (input: any) => {
+        const { idToDelete } = input
+
+        const postToDeleteDB = await this.postDatabase.findPostById(idToDelete)
+
+        if (!postToDeleteDB) {
+            throw new NotFoundError("'id' para deletar não existe")
+        }
+
+        await this.postDatabase.deletePostById(postToDeleteDB.id)
+
+        const output = {
+            message: "Post deletado com sucesso"
+        }
+
+        return output
+    }
 
 }
